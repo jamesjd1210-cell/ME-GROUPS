@@ -1,5 +1,4 @@
-plugins { id 'com.android.application'
-    version '8.2.2'}
+plugins { id 'com.android.application' version '8.2.2' }
 
 android {
     namespace 'com.megroups.chit'
