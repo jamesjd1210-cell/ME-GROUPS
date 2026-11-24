@@ -19,14 +19,19 @@ android {
                 srcDirs = ['.']
                 exclude 'build/**', '.gradle/**', '.github/**'
             }
-            assets {
-                srcDirs = ['.']
-                exclude 'build/**', '.gradle/**', '.github/**', '*.gradle', '*.properties', '*.java', '*.xml', '*.txt', '*.md'
-            }
         }
     }
 
     lint {
         abortOnError false
     }
+}
+
+tasks.register('copyRootIndexHtml', Copy) {
+    from 'index.html'
+    into 'src/main/assets'
+}
+
+tasks.matching { it.name.startsWith('merge') && it.name.endsWith('Assets') }.configureEach {
+    dependsOn 'copyRootIndexHtml'
 }
