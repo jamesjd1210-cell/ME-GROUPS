@@ -1,4 +1,6 @@
-plugins { id 'com.android.application' version '8.2.2' }
+plugins {
+    id 'com.android.application' version '8.2.2'
+}
 
 android {
     namespace 'com.megroups.chit'
@@ -15,30 +17,10 @@ android {
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['build/gen-java']
-            assets.srcDirs = ['build/gen-assets']
         }
     }
 
     lint {
         abortOnError false
     }
-}
-
-def genJavaTask = tasks.register('genMeGroupsJava', Copy) {
-    from('MainActivity.java')
-    into('build/gen-java/com/megroups/chit')
-}
-
-def genAssetsTask = tasks.register('genMeGroupsAssets', Copy) {
-    from('index.html')
-    into('build/gen-assets')
-}
-
-tasks.matching { it.name.startsWith('compile') && it.name.endsWith('JavaWithJavac') }.configureEach {
-    dependsOn(genJavaTask)
-}
-
-tasks.matching { it.name.startsWith('merge') && it.name.endsWith('Assets') }.configureEach {
-    dependsOn(genAssetsTask)
 }
