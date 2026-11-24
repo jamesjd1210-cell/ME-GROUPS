@@ -15,20 +15,18 @@ android {
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['.']
-            assets.srcDirs = ['.']
+            java {
+                srcDirs = ['.']
+                exclude 'build/**', '.gradle/**', '.github/**'
+            }
+            assets {
+                srcDirs = ['.']
+                exclude 'build/**', '.gradle/**', '.github/**', '*.gradle', '*.properties', '*.java', '*.xml', '*.txt', '*.md'
+            }
         }
     }
 
     lint {
         abortOnError false
-    }
-}
-
-afterEvaluate {
-    tasks.findAll { it.name.startsWith('merge') && it.name.endsWith('Assets') }.each { mergeTask ->
-        tasks.findAll { it.name.startsWith('create') && it.name.endsWith('CompatibleScreenManifests') }.each { manifestTask ->
-            mergeTask.dependsOn(manifestTask)
-        }
     }
 }
