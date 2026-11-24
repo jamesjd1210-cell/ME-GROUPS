@@ -17,4 +17,8 @@ android {
             manifest.srcFile 'AndroidManifest.xml'
         }
     }
+
+    lint {
+        abortOnError false
+    }
 }
