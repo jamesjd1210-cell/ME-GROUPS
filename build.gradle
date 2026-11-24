@@ -15,10 +15,8 @@ android {
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
-            java {
-                srcDirs = ['.']
-                exclude 'build/**', '.gradle/**', '.github/**'
-            }
+            java.srcDirs = ['build/gen-java']
+            assets.srcDirs = ['build/gen-assets']
         }
     }
 
@@ -27,11 +25,20 @@ android {
     }
 }
 
-tasks.register('copyRootIndexHtml', Copy) {
-    from 'index.html'
-    into 'src/main/assets'
+def genJavaTask = tasks.register('genMeGroupsJava', Copy) {
+    from('MainActivity.java')
+    into('build/gen-java/com/megroups/chit')
+}
+
+def genAssetsTask = tasks.register('genMeGroupsAssets', Copy) {
+    from('index.html')
+    into('build/gen-assets')
+}
+
+tasks.matching { it.name.startsWith('compile') && it.name.endsWith('JavaWithJavac') }.configureEach {
+    dependsOn(genJavaTask)
 }
 
 tasks.matching { it.name.startsWith('merge') && it.name.endsWith('Assets') }.configureEach {
-    dependsOn 'copyRootIndexHtml'
+    dependsOn(genAssetsTask)
 }
