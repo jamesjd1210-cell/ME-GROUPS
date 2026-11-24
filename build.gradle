@@ -24,3 +24,11 @@ android {
         abortOnError false
     }
 }
+
+afterEvaluate {
+    tasks.findAll { it.name.startsWith('merge') && it.name.endsWith('Assets') }.each { mergeTask ->
+        tasks.findAll { it.name.startsWith('create') && it.name.endsWith('CompatibleScreenManifests') }.each { manifestTask ->
+            mergeTask.dependsOn(manifestTask)
+        }
+    }
+}
