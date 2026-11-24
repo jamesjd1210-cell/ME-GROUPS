@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ta"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ME GROUPS</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f5f8;color:#172033;font-family:Arial,sans-serif}
+header{background:linear-gradient(135deg,#111827,#34445f);color:#fff;padding:22px 18px;border-radius:0 0 22px 22px}
+.brand{font-size:24px;font-weight:800;letter-spacing:2px;color:#f6d58a}header p{margin:6px 0 0;color:#d9dfeb}
+main{padding:14px;max-width:700px;margin:auto}.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.card{background:#fff;padding:15px;border-radius:14px;box-shadow:0 3px 14px #18243a0c;margin-bottom:12px}
+.stat strong{display:block;font-size:22px;margin-top:5px}.muted{color:#697386;font-size:13px}
+h3{margin:3px 0 12px}.btn{border:0;border-radius:10px;background:#18263e;color:white;padding:12px 14px;font-weight:700;width:100%;margin-top:8px}
+.gold{background:#b88735}.row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+select,input{padding:11px;border:1px solid #d7dce5;border-radius:9px;width:100%;background:white;margin:5px 0}
+.member{display:flex;justify-content:space-between;border-bottom:1px solid #edf0f4;padding:10px 0;gap:8px}
+.tag{font-size:12px;padding:5px 8px;border-radius:20px;background:#edf2f8}.winner{background:#e7f7ed;color:#187344}
+</style></head><body>
+<header><div class="brand">ME GROUPS</div><p>Monthly Lucky Draw Management</p></header>
+<main>
+<div class="stats">
+ <div class="card stat"><span class="muted">Members</span><strong>20</strong></div>
+ <div class="card stat"><span class="muted">Monthly collection</span><strong>₹20,000</strong></div>
+ <div class="card stat"><span class="muted">Monthly contribution</span><strong>₹1,000</strong></div>
+ <div class="card stat"><span class="muted">Prize amount</span><strong>₹20,000</strong></div>
+</div>
+<div class="card"><h3>மாதம் தேர்வு செய்</h3>
+<select id="month" onchange="render()"></select>
+<div id="monthInfo" class="muted"></div>
+<button class="btn gold" onclick="draw()">குலுக்கல் நடத்து</button>
+<p class="muted">மாதம் 2 மட்டும் Company Chit. மற்ற மாதங்களில் இதுவரை வெற்றி பெறாத உறுப்பினர்களில் ஒருவர் தேர்வு செய்யப்படுவார்.</p>
+</div>
+<div class="card"><h3>உறுப்பினர்கள் / முடிவுகள்</h3><div id="members"></div></div>
+<div class="card"><div class="row"><h3>வெற்றி வரலாறு</h3><button style="width:auto" class="btn" onclick="resetData()">Reset</button></div><div id="history" class="muted">இன்னும் முடிவு இல்லை.</div></div>
+<p class="muted">Demo app: தகவல்கள் இந்த மொபைலிலேயே சேமிக்கப்படும். இது வங்கி/பணம் செலுத்தும் வசதி அல்ல. உண்மைப் பணச் சீட்டு நடத்துவதற்கு முன் பொருந்தும் சட்ட மற்றும் பதிவு விதிகளை உறுதி செய்யவும்.</p>
+</main>
+<script>
+const key='meg_chit_v1';
+let data=JSON.parse(localStorage.getItem(key)||'{"winners":{},"drawn":[]}');
+const sel=document.getElementById('month');
+for(let i=1;i<=20;i++){let o=document.createElement('option');o.value=i;o.text='மாதம் '+i;sel.add(o)}
+function save(){localStorage.setItem(key,JSON.stringify(data));render()}
+function render(){
+ const m=+sel.value;
+ document.getElementById('monthInfo').textContent=m===2?'இந்த மாதம் Company Chit — பரிசு நிறுவனத்திற்குரியது.':'இந்த மாதம் உறுப்பினர் குலுக்கல்.';
+ let html='';
+ for(let i=1;i<=20;i++){
+  const name='உறுப்பினர் '+String(i).padStart(2,'0');
+  const win=Object.entries(data.winners).find(([mo,id])=>+id===i);
+  html+=`<div class="member"><span>${name}</span><span class="tag ${win?'winner':''}">${win?'மாதம் '+win[0]+' வெற்றி':'₹1,000 / மாதம்'}</span></div>`;
+ }
+ document.getElementById('members').innerHTML=html;
+ const hist=Object.entries(data.winners).sort((a,b)=>+a[0]-+b[0]).map(([mo,id])=>`<div class="member"><span>மாதம் ${mo}</span><b>உறுப்பினர் ${String(id).padStart(2,'0')}</b></div>`).join('');
+ document.getElementById('history').innerHTML=(data.drawn.includes(2)?'<div class="member"><b>மாதம் 2</b><span>Company Chit</span></div>':'')+(hist||'இன்னும் முடிவு இல்லை.');
+}
+function draw(){
+ const m=+sel.value;
+ if(data.drawn.includes(m)){alert('இந்த மாத முடிவு ஏற்கனவே பதிவு செய்யப்பட்டுள்ளது.');return}
+ if(m===2){data.drawn.push(2);save();alert('மாதம் 2 — Company Chit பதிவு செய்யப்பட்டது.');return}
+ const already=Object.values(data.winners).map(Number);
+ const eligible=Array.from({length:20},(_,i)=>i+1).filter(id=>!already.includes(id));
+ if(!eligible.length){alert('அனைத்து உறுப்பினர்களும் வெற்றி பெற்றுவிட்டனர்.');return}
+ const winner=eligible[Math.floor(Math.random()*eligible.length)];
+ data.winners[m]=winner;data.drawn.push(m);save();
+ alert('வெற்றியாளர்: உறுப்பினர் '+String(winner).padStart(2,'0'));
+}
+function resetData(){if(confirm('எல்லா முடிவுகளையும் அழிக்கவா?')){data={winners:{},drawn:[]};save()}}
+render();
+</script></body></html>
